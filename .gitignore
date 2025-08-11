@@ -1,0 +1,55 @@
+
+# Arquivos e pastas do build
+bin/
+obj/
+
+# Configurações locais do usuário
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Arquivos temporários do sistema
+*.log
+*.vs/
+*.DS_Store
+*.Thumbs.db
+
+# Pacotes NuGet baixados
+*.nupkg
+packages/
+
+# Configurações do NuGet
+.nuget/
+
+# Arquivos gerados pelo Rider (se usar JetBrains)
+.idea/
+
+# Diretório do Publish (quando fizer publish)
+publish/
+
+# Configurações de cache do projeto
+*.cache
+
+# Arquivos gerados por testes e cobertura de código
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+
+# Diretórios de dependências do front-end (se usar)
+node_modules/
+
+# Configurações locais do ASP.NET Core
+Properties/launchSettings.json
+
+# Configurações do Entity Framework Migrations (se houver)
+Migrations/
+
+# Arquivos de logs específicos do ASP.NET
+Logs/
+
+# Arquivos e pastas específicos do Docker (se usar)
+docker-compose.override.yml
+docker-compose.override.yaml
