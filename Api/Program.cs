@@ -9,7 +9,6 @@ using minimal_api.Infra.Db;
 using Microsoft.OpenApi.Models;
 using minimal_api.Domain.Entities;
 using minimal_api.Domain.Enums;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
