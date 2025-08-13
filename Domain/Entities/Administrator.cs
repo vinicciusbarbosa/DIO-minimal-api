@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using minimal_api.Domain.Enums;
 
 namespace minimal_api.Domain.Entities
 {
@@ -20,6 +21,6 @@ namespace minimal_api.Domain.Entities
         public string Password { get; set; } = default!;
         [Required]
         [StringLength(10)]
-        public string Profile { get; set; } = default!;
+        public Profile Profile { get; set; } = default!;
     }
 }

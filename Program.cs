@@ -8,6 +8,7 @@ using minimal_api.Domain.Services;
 using minimal_api.Infra.Db;
 using Microsoft.OpenApi.Models;
 using minimal_api.Domain.Entities;
+using minimal_api.Domain.Enums;
 
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -24,43 +25,85 @@ var app = builder.Build();
 #endregion
 
 #region Administrators
+
+app.MapGet("/administrators", ([FromQuery] int? page, IAdministratorService administratorService) =>
+{
+   var admins = administratorService.ListAllAdministrators(page)
+    .Select(a => new AdministratorOutDTO
+    {
+        Id = a.Id,
+        Email = a.Email,
+        Profile = a.Profile
+    })
+    .ToList();
+
+    return Results.Ok(admins);
+}).WithTags("Administrators");
+
+app.MapGet("/administrators/{id}", (int? id, IAdministratorService administratorService) =>
+{
+    var administrator = administratorService.SearchAdministratorById(id);
+
+    if (administrator == null)
+        return Results.NotFound(new { message = "Administrator with this ID was not found." });
+
+    var returnDto = new AdministratorOutDTO
+    {
+        Id = administrator.Id,
+        Email = administrator.Email,
+        Profile = administrator.Profile
+    };
+
+    return Results.Ok(returnDto);    
+}).WithTags("Administrators");
+
+
 app.MapPost("/administrators/login", ([FromBody] LoginDTO loginDTO, IAdministratorService administratorService) =>
 {
     if (administratorService.Login(loginDTO) != null)
         return Results.Ok("Login realizado com sucesso!");
     else
         return Results.Text("Login inválido, tente novamente.");
-}).WithTags("Administrator");
+}).WithTags("Administrators");
+
+app.MapPost("/administrators", ([FromBody] AdministratorDTO administratorDTO, IAdministratorService administratorService) =>
+{
+    if (string.IsNullOrEmpty(administratorDTO.Email))
+        return Results.BadRequest(new { message = "Email is required." });
+
+    if (string.IsNullOrEmpty(administratorDTO.Password))
+        return Results.BadRequest(new { message = "Password is required." });
+
+    if (!Enum.IsDefined(typeof(Profile), administratorDTO.Profile))
+    return Results.BadRequest(new { message = "Profile is required." });
+
+    var administrator = new Administrator
+    {
+        Email = administratorDTO.Email,
+        Password = administratorDTO.Password,
+        Profile = administratorDTO.Profile
+    };
+
+    var createdAdmin = administratorService.Create(administrator);
+
+     var adminDto = new AdministratorOutDTO
+    {
+        Id = createdAdmin.Id,
+        Email = createdAdmin.Email,
+        Profile = createdAdmin.Profile
+    };
+
+    return Results.Created($"/administrators/{createdAdmin.Id}", adminDto);
+}).WithTags("Administrators");
 #endregion
 
 #region Vehicles
-app.MapPost("/vehicles", (VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
-{
-    if (string.IsNullOrEmpty(vehicleDTO.Name))
-        return Results.BadRequest(new { message = "Name is required." });
-
-    if (string.IsNullOrEmpty(vehicleDTO.Brand))
-        return Results.BadRequest(new { message = "Brand is required." });
-
-    if (vehicleDTO.Year < 1900 || vehicleDTO.Year > DateTime.Now.Year)
-        return Results.BadRequest(new { message = $"Year must be between 1900 and {DateTime.Now.Year}."});
-
-    var vehicle = new Vehicle
-    {
-        Name = vehicleDTO.Name,
-        Brand = vehicleDTO.Brand,
-        Year = vehicleDTO.Year
-    };
-
-    vehicleService.AddVehicle(vehicle);
-    return Results.Created($"/vehicle/{vehicle.Id}", vehicle);
-}).WithTags("Vehicle"); 
 
 app.MapGet("/vehicles", (int? page, string? name, string? brand, IVehicleService vehicleService) =>
 {
     var vehicles = vehicleService.ListAllVehicles(page ?? 1, name, brand);
     return Results.Ok(vehicles);
-}).WithTags("Vehicle");;
+}).WithTags("Vehicle");
 
 app.MapGet("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
 {
@@ -71,6 +114,27 @@ app.MapGet("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
         return Results.Ok(vehicle);
     
 }).WithTags("Vehicle");
+
+app.MapPost("/vehicles", (VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
+{
+    if (string.IsNullOrEmpty(vehicleDTO.Name))
+        return Results.BadRequest(new { message = "Name is required." });
+
+    if (string.IsNullOrEmpty(vehicleDTO.Brand))
+        return Results.BadRequest(new { message = "Brand is required." });
+
+    if (vehicleDTO.Year < 1900 || vehicleDTO.Year > DateTime.Now.Year)
+        return Results.BadRequest(new { message = $"Year must be between 1900 and {DateTime.Now.Year}." });
+
+    var vehicle = new Vehicle
+    {
+        Name = vehicleDTO.Name,
+        Brand = vehicleDTO.Brand,
+        Year = vehicleDTO.Year
+    };
+    vehicleService.AddVehicle(vehicle);
+    return Results.Created($"/vehicle/{vehicle.Id}", vehicle);
+}).WithTags("Vehicle"); 
 
 app.MapPut("/vehicles/{id}", (int id, VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
 {

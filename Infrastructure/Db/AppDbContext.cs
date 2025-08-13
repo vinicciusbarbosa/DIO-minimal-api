@@ -9,13 +9,17 @@ namespace minimal_api.Infra.Db
         public DbSet<Vehicle> Vehicles { get; set; } = default!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Administrator>()
+                .Property(a => a.Profile)
+                .HasConversion<string>();
+
             modelBuilder.Entity<Administrator>().HasData(
                 new Administrator
                 {
                     Id = -1,
                     Email = "adm@teste.com",
                     Password = "123",
-                    Profile = "Adm"
+                    Profile = Domain.Enums.Profile.Administrator
                 }
             );
         }
