@@ -196,12 +196,6 @@ app.MapGet("/vehicles", (int? page, string? name, string? brand, IVehicleService
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 
-app.MapGet("/vehicles/by-contract-type", (ContractType contractType, IVehicleService vehicleService,bool onlyActive ,int page) =>
-{
-    var vehicles = vehicleService.ListAllVehiclesPerContractType(contractType,onlyActive, page);
-    return Results.Ok(vehicles);
-})
-.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 
 app.MapGet("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
 {
@@ -214,58 +208,25 @@ app.MapGet("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 
-app.MapPost("/vehicles", (VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
+app.MapGet("/vehicles/by-contract-type", (ContractType contractType, IVehicleService vehicleService,bool onlyActive ,int? page) =>
 {
-    if (string.IsNullOrEmpty(vehicleDTO.Name))
-        return Results.BadRequest(new { message = "Name is required." });
+    var vehicles = vehicleService.ListAllVehiclesPerContractType(contractType, onlyActive, page ?? 1);
+    if (vehicles == null)
+        return Results.NotFound(new { message = "No vehicles found for the specified contract type." });
 
-    if (string.IsNullOrEmpty(vehicleDTO.Brand))
-        return Results.BadRequest(new { message = "Brand is required." });
+    return Results.Ok(vehicles);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 
-    if (vehicleDTO.Year < 1900 || vehicleDTO.Year > DateTime.Now.Year)
-        return Results.BadRequest(new { message = $"Year must be between 1900 and {DateTime.Now.Year}." });
-
-    var vehicle = new Vehicle
-    {
-        Name = vehicleDTO.Name,
-        Brand = vehicleDTO.Brand,
-        Year = vehicleDTO.Year,
-    };
-    
-    return Results.Created($"/vehicle/{vehicle.Id}", vehicle);
-}).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");
-
-app.MapPut("/vehicles/{id}", (int id, VehicleDTO vehicleDTO, IVehicleService vehicleService) =>
+app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleService) =>
 {
-    var vehicle = vehicleService.SearchById(id);
+    var vehicle = vehicleService.SearchByPlate(plate);
     if (vehicle == null)
-        return Results.NotFound(new { message = "No vehicle was found with this ID." });
-
-    if (string.IsNullOrEmpty(vehicleDTO.Name))
-        return Results.BadRequest(new { message = "Name is required." });
-    
-    if (string.IsNullOrEmpty(vehicleDTO.Brand))
-        return Results.BadRequest(new { message = "Brand is required." });
-
-    if (vehicleDTO.Year < 1900 || vehicleDTO.Year > DateTime.Now.Year)
-        return Results.BadRequest(new { message = $"Year must be between 1900 and {DateTime.Now.Year}."});
-
-    vehicle.Name = vehicleDTO.Name;
-    vehicle.Brand = vehicleDTO.Brand;
-    vehicle.Year = vehicleDTO.Year;
-
-    return Results.Accepted($"/vehicles/{vehicle.Id}", vehicle);
-}).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");
-
-app.MapDelete("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
-{
-    var vehicle = vehicleService.SearchById(id);
-    if (vehicle == null)
-        return Results.NotFound(new { message = "No vehicle was found with this ID." });
-
-
-    return Results.Ok();
-}).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");
+        return Results.NotFound(new { message = "No vehicles was found with this ID." });
+    else
+        return Results.Ok(vehicle);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 #endregion
 
 #region App

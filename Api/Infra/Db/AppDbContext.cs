@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using minimal_api.Api.Domain.Entities;
 using minimal_api.Domain.Entities;
 
 namespace minimal_api.Infra.Db
@@ -7,7 +8,10 @@ namespace minimal_api.Infra.Db
     {
         public DbSet<Administrator> Administrators { get; set; } = default!;
         public DbSet<Vehicle> Vehicles { get; set; } = default!;
-        
+        public DbSet<MonthlyContract> MonthlyContracts { get; set; } = default!;
+        public DbSet<RotativeContract> RotativeContracts { get; set; } = default!;
+        public DbSet<ParkingSpot> ParkingSpots { get; set; } = default!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Administrator>()

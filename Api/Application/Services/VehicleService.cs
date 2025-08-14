@@ -8,6 +8,7 @@ using minimal_api.Domain.Interfaces;
 using minimal_api.Infra.Db;
 using minimal_api.Domain.Enums;
 using minimal_api.Api.Domain.Enums;
+using System.Text.RegularExpressions;
 
 namespace minimal_api.Domain.Services
 {   public class VehicleService : IVehicleService
@@ -26,7 +27,15 @@ namespace minimal_api.Domain.Services
 
         public Vehicle? SearchByPlate(string plate)
         {
-            return _context.Vehicles.Where(v => v.Plate == plate).FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(plate))
+                return null;
+
+            plate.Trim().ToUpper();
+
+            if (!Regex.IsMatch(plate, @"^[A-Z]{3}-\d{4}$"))
+                return null;
+            
+             return _context.Vehicles.SingleOrDefault(v => v.Plate == plate);
         }
 
         public List<Vehicle> ListAllVehicles(int page = 1, string? name = null, string? brand = null)
