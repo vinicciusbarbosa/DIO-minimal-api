@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using minimal_api.Api.Domain.Enums;
 
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -221,9 +222,9 @@ app.MapPost("/vehicles", (VehicleDTO vehicleDTO, IVehicleService vehicleService)
     {
         Name = vehicleDTO.Name,
         Brand = vehicleDTO.Brand,
-        Year = vehicleDTO.Year
+        Year = vehicleDTO.Year,
     };
-    vehicleService.AddVehicle(vehicle);
+    
     return Results.Created($"/vehicle/{vehicle.Id}", vehicle);
 }).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");
 
@@ -245,7 +246,6 @@ app.MapPut("/vehicles/{id}", (int id, VehicleDTO vehicleDTO, IVehicleService veh
     vehicle.Name = vehicleDTO.Name;
     vehicle.Brand = vehicleDTO.Brand;
     vehicle.Year = vehicleDTO.Year;
-    vehicleService.UpdateVehicle(vehicle);
 
     return Results.Accepted($"/vehicles/{vehicle.Id}", vehicle);
 }).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");
@@ -255,7 +255,6 @@ app.MapDelete("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
     var vehicle = vehicleService.SearchById(id);
     if (vehicle == null)
         return Results.NotFound(new { message = "No vehicle was found with this ID." });
-    vehicleService.DeleteVehicle(vehicle);
 
     return Results.Ok();
 }).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");

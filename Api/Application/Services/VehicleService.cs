@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using minimal_api.Domain.Entities;
 using minimal_api.Domain.Interfaces;
 using minimal_api.Infra.Db;
+using minimal_api.Domain.Enums;
+using minimal_api.Api.Domain.Enums;
 
 namespace minimal_api.Domain.Services
 {   public class VehicleService : IVehicleService
@@ -14,22 +16,17 @@ namespace minimal_api.Domain.Services
         public VehicleService(AppDbContext context)
         {
             _context = context;
-        }
-        public void AddVehicle(Vehicle vehicle)
-        {
-            _context.Vehicles.Add(vehicle);
-            _context.SaveChanges();
-        }
 
-        public void DeleteVehicle(Vehicle vehicle)
-        {
-            _context.Vehicles.Remove(vehicle);
-            _context.SaveChanges();
         }
 
         public Vehicle? SearchById(int id)
         {
             return _context.Vehicles.Where(v => v.Id == id).FirstOrDefault();
+        }
+
+        public Vehicle? SearchByPlate(string plate)
+        {
+            return _context.Vehicles.Where(v => v.Plate == plate).FirstOrDefault();
         }
 
         public List<Vehicle> ListAllVehicles(int page = 1, string? name = null, string? brand = null)
@@ -51,10 +48,9 @@ namespace minimal_api.Domain.Services
             return query.ToList();
         }
 
-        public void UpdateVehicle(Vehicle vehicle)
+        public List<Vehicle> ListAllVehiclesPerContractType(ContractType contractType, bool onlyActive = true)
         {
-            _context.Vehicles.Update(vehicle);
-            _context.SaveChanges();
+            throw new NotImplementedException();
         }
     }
 }
