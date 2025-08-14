@@ -19,6 +19,7 @@ namespace minimal_api.Api.Domain.Entities
         public int ParkingSpotId { get; set; }
         [ForeignKey("ParkingSpotId")]
         public ParkingSpot Spot { get; set; } = default!;
+        [Required]
         public ContractType ContractType { get; set; }
         public DateTime EntryTime { get; set; } = DateTime.Now;
         public DateTime? ExitTime { get; set; }

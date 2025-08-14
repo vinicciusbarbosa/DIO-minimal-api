@@ -196,6 +196,13 @@ app.MapGet("/vehicles", (int? page, string? name, string? brand, IVehicleService
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
 
+app.MapGet("/vehicles/by-contract-type", (ContractType contractType, IVehicleService vehicleService,bool onlyActive ,int page) =>
+{
+    var vehicles = vehicleService.ListAllVehiclesPerContractType(contractType,onlyActive, page);
+    return Results.Ok(vehicles);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
+
 app.MapGet("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
 {
     var vehicle = vehicleService.SearchById(id);
@@ -255,6 +262,7 @@ app.MapDelete("/vehicles/{id}", (int id, IVehicleService vehicleService) =>
     var vehicle = vehicleService.SearchById(id);
     if (vehicle == null)
         return Results.NotFound(new { message = "No vehicle was found with this ID." });
+
 
     return Results.Ok();
 }).RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator" }).WithTags("Vehicle");

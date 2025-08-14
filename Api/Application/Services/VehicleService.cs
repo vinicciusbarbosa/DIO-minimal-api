@@ -48,9 +48,25 @@ namespace minimal_api.Domain.Services
             return query.ToList();
         }
 
-        public List<Vehicle> ListAllVehiclesPerContractType(ContractType contractType, bool onlyActive = true)
+        public List<Vehicle> ListAllVehiclesPerContractType(ContractType contractType, bool onlyActive = true, int page = 1)
         {
-            throw new NotImplementedException();
+            IQueryable<Vehicle> query;
+
+            if (onlyActive)
+            {
+                query = _context.Vehicles
+                .Where(v => v.Contracts.Any(c => c.ContractType == contractType && c.Active == true));
+            }
+            else
+            {
+                query = _context.Vehicles
+                .Where(v => v.Contracts.Any(c => c.ContractType == contractType && !c.Active));
+            }
+            int itemsPerPage = 10;
+            query = query.AsNoTracking()
+                .Skip((page - 1) * itemsPerPage)
+                .Take(itemsPerPage);
+            return query.ToList();
         }
     }
 }
