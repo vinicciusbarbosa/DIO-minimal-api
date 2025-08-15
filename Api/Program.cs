@@ -231,7 +231,7 @@ app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleS
 #endregion
 
 #region Contracts
-app.MapGet("/contracts/monthly", (IMonthlyContractService monthlyContractService) =>
+app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService) =>
 {
     var contracts       = monthlyContractService.GetAllMonthlyContracts();
     var contractDTOs    = contracts.Select(c => new MonthlyContractOutDTO
@@ -256,7 +256,7 @@ app.MapGet("/contracts/monthly", (IMonthlyContractService monthlyContractService
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Contracts");
 
-app.MapPost("/contracts/monthly", (IMonthlyContractService monthlyContractService, MonthlyContractDTO contractDTO) =>
+app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService, MonthlyContractDTO contractDTO) =>
 {
     var createdContract = monthlyContractService.AddMonthlyContract(contractDTO);
     
@@ -284,26 +284,26 @@ app.MapPost("/contracts/monthly", (IMonthlyContractService monthlyContractServic
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
 .WithTags("Contracts");
 
-app.MapPut("/contracts/monthly/{id}", (IMonthlyContractService monthlyContractService, UpdateMonthlyContractDTO updateMonthlyContractDTO, int id) =>
+app.MapPut("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService monthlyContractService, UpdateMonthlyContractDTO updateMonthlyContractDTO, int id) =>
 {
     var updatedContract = monthlyContractService.UpdateMonthlyContract(updateMonthlyContractDTO, id);
-    
+
     var resultUpdateDto = new MonthlyContractOutDTO
     {
-        Id              = updatedContract.Id,
-        StartDate       = updatedContract.StartDate,
-        EndDate         = updatedContract.EndDate,
-        MonthlyFee      = updatedContract.MonthlyFee,
+        Id = updatedContract.Id,
+        StartDate = updatedContract.StartDate,
+        EndDate = updatedContract.EndDate,
+        MonthlyFee = updatedContract.MonthlyFee,
         DiscountPercent = updatedContract.DiscountPercent,
-        Active          = updatedContract.Active,
-        Vehicle         = new VehicleOutDTO
+        Active = updatedContract.Active,
+        Vehicle = new VehicleOutDTO
         {
-            Id          = updatedContract.Vehicle.Id,
-            Plate       = updatedContract.Vehicle.Plate,
-            Name        = updatedContract.Vehicle.Name,
-            Brand       = updatedContract.Vehicle.Brand,
-            Color       = updatedContract.Vehicle.Color,
-            Year        = updatedContract.Vehicle.Year
+            Id = updatedContract.Vehicle.Id,
+            Plate = updatedContract.Vehicle.Plate,
+            Name = updatedContract.Vehicle.Name,
+            Brand = updatedContract.Vehicle.Brand,
+            Color = updatedContract.Vehicle.Color,
+            Year = updatedContract.Vehicle.Year
         }
     };
 
@@ -311,6 +311,15 @@ app.MapPut("/contracts/monthly/{id}", (IMonthlyContractService monthlyContractSe
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
 .WithTags("Contracts");
+
+app.MapDelete("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService monthlyContractService, int id) =>
+{
+    var contract = monthlyContractService.RemoveMonthlyContract(id);
+    return Results.Ok(contract);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
+.WithTags("Contracts");
+
 
 #endregion
 
