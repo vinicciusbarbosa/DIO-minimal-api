@@ -10,8 +10,8 @@ namespace minimal_api.Domain.Interfaces
     public interface IMonthlyContractService
     {
         List<MonthlyContract> GetAllMonthlyContracts();
-        MonthlyContract AddMonthlyContract(MonthlyContract monthlyContract);
-        MonthlyContract UpdateMonthlyContract(MonthlyContract monthlyContract);
+        MonthlyContract AddMonthlyContract(MonthlyContractDTO contractDTO);
+        MonthlyContract UpdateMonthlyContract(UpdateMonthlyContractDTO updatedContract, int id);
         MonthlyContract RemoveMonthlyContract(int id);
     }
 }

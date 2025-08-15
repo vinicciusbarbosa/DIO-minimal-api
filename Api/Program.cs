@@ -16,6 +16,7 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using minimal_api.Api.Domain.Enums;
+using minimal_api.Api.Domain.Entities;
 
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -103,9 +104,9 @@ app.MapGet("/administrators", ([FromQuery] int? page, IAdministratorService admi
     var admins = administratorService.ListAllAdministrators(page)
      .Select(a => new AdministratorOutDTO
      {
-         Id = a.Id,
-         Email = a.Email,
-         Profile = a.Profile
+         Id         = a.Id,
+         Email      = a.Email,
+         Profile    = a.Profile
      })
      .ToList();
 
@@ -121,11 +122,11 @@ app.MapGet("/administrators/{id}", (int? id, IAdministratorService administrator
     if (administrator == null)
         return Results.NotFound(new { message = "Administrator with this ID was not found." });
 
-    var returnDto = new AdministratorOutDTO
+    var returnDto   = new AdministratorOutDTO
     {
-        Id = administrator.Id,
-        Email = administrator.Email,
-        Profile = administrator.Profile
+        Id          = administrator.Id,
+        Email       = administrator.Email,
+        Profile     = administrator.Profile
     };
 
     return Results.Ok(returnDto);    
@@ -139,13 +140,13 @@ app.MapPost("/administrators/login", ([FromBody] LoginDTO loginDTO, IAdministrat
     var adm = administratorService.Login(loginDTO);
     if (adm != null)
     {
-        string token = GetTokenJwt(adm, key);
+        string token    = GetTokenJwt(adm, key);
 
-        var result = new
+        var result      = new
         {
-            Email = adm.Email,
-            Profile = adm.Profile,
-            Token = token
+            Email       = adm.Email,
+            Profile     = adm.Profile,
+            Token       = token
         };
 
         return Results.Ok(result);
@@ -169,18 +170,18 @@ app.MapPost("/administrators", ([FromBody] AdministratorDTO administratorDTO, IA
 
     var administrator = new Administrator
     {
-        Email = administratorDTO.Email,
-        Password = administratorDTO.Password,
-        Profile = administratorDTO.Profile
+        Email           = administratorDTO.Email,
+        Password        = administratorDTO.Password,
+        Profile         = administratorDTO.Profile
     };
 
-    var createdAdmin = administratorService.Create(administrator);
+    var createdAdmin    = administratorService.Create(administrator);
 
-     var adminDto = new AdministratorOutDTO
+     var adminDto       = new AdministratorOutDTO
     {
-        Id = createdAdmin.Id,
-        Email = createdAdmin.Email,
-        Profile = createdAdmin.Profile
+        Id              = createdAdmin.Id,
+        Email           = createdAdmin.Email,
+        Profile         = createdAdmin.Profile
     };
 
     return Results.Created($"/administrators/{createdAdmin.Id}", adminDto);
@@ -227,6 +228,90 @@ app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleS
         return Results.Ok(vehicle);
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Vehicle");
+#endregion
+
+#region Contracts
+app.MapGet("/contracts/monthly", (IMonthlyContractService monthlyContractService) =>
+{
+    var contracts       = monthlyContractService.GetAllMonthlyContracts();
+    var contractDTOs    = contracts.Select(c => new MonthlyContractOutDTO
+    {
+        Id              = c.Id,
+        StartDate       = c.StartDate,
+        EndDate         = c.EndDate,
+        MonthlyFee      = c.MonthlyFee,
+        DiscountPercent = c.DiscountPercent,
+        Active          = c.Active,
+        Vehicle         = new VehicleOutDTO
+        {
+            Id          = c.Vehicle.Id,
+            Plate       = c.Vehicle.Plate,
+            Name        = c.Vehicle.Name,
+            Brand       = c.Vehicle.Brand,
+            Color       = c.Vehicle.Color,
+            Year        = c.Vehicle.Year
+        }
+    }).ToList();
+    return Results.Ok(contractDTOs);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Contracts");
+
+app.MapPost("/contracts/monthly", (IMonthlyContractService monthlyContractService, MonthlyContractDTO contractDTO) =>
+{
+    var createdContract = monthlyContractService.AddMonthlyContract(contractDTO);
+    
+    var resultDTO       = new MonthlyContractOutDTO
+    {
+        Id              = createdContract.Id,
+        StartDate       = createdContract.StartDate,
+        EndDate         = createdContract.EndDate,
+        MonthlyFee      = createdContract.MonthlyFee,
+        DiscountPercent = createdContract.DiscountPercent,
+        Active          = createdContract.Active,
+        Vehicle         = new VehicleOutDTO
+        {
+            Id          = createdContract.Vehicle.Id,
+            Plate       = createdContract.Vehicle.Plate,
+            Name        = createdContract.Vehicle.Name,
+            Brand       = createdContract.Vehicle.Brand,
+            Color       = createdContract.Vehicle.Color,
+            Year        = createdContract.Vehicle.Year
+        }
+    };
+
+    return Results.Ok(resultDTO);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
+.WithTags("Contracts");
+
+app.MapPut("/contracts/monthly/{id}", (IMonthlyContractService monthlyContractService, UpdateMonthlyContractDTO updateMonthlyContractDTO, int id) =>
+{
+    var updatedContract = monthlyContractService.UpdateMonthlyContract(updateMonthlyContractDTO, id);
+    
+    var resultUpdateDto = new MonthlyContractOutDTO
+    {
+        Id              = updatedContract.Id,
+        StartDate       = updatedContract.StartDate,
+        EndDate         = updatedContract.EndDate,
+        MonthlyFee      = updatedContract.MonthlyFee,
+        DiscountPercent = updatedContract.DiscountPercent,
+        Active          = updatedContract.Active,
+        Vehicle         = new VehicleOutDTO
+        {
+            Id          = updatedContract.Vehicle.Id,
+            Plate       = updatedContract.Vehicle.Plate,
+            Name        = updatedContract.Vehicle.Name,
+            Brand       = updatedContract.Vehicle.Brand,
+            Color       = updatedContract.Vehicle.Color,
+            Year        = updatedContract.Vehicle.Year
+        }
+    };
+
+    return Results.Ok(resultUpdateDto);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
+.WithTags("Contracts");
+
 #endregion
 
 #region App
