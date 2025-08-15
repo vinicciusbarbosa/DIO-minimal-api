@@ -24,32 +24,39 @@ namespace minimal_api.Application.Services
         {
             return _context.MonthlyContracts.ToList();
         }
-        public MonthlyContract AddMonthlyContract(MonthlyContractDTO contractDTO)
+        public MonthlyContract AddMonthlyContract(MonthlyContractDTO dto)
         {
-            var vehicle = _context.Vehicles.FirstOrDefault(v => v.Plate == contractDTO.Plate);
-            if (vehicle == null)
-                throw new Exception("Vehicle not found.");
+            var parkingSpot = _context.ParkingSpots.FirstOrDefault(s => s.Id == dto.ParkingSpotId);
+    
+            if (parkingSpot == null)
+                throw new Exception("Parking spot not found.");
+
+            if (parkingSpot.IsOccupied)
+                throw new Exception($"Parking spot {parkingSpot.SpotNumber} is already occupied.");
+
+            var vehicle = new Vehicle
+            {
+                Plate = dto.VehiclePlate,
+                Brand = dto.VehicleBrand,
+                Color = dto.VehicleColor,
+                Year = dto.VehicleYear
+            };
 
             var contract = new MonthlyContract
             {
-                VehicleId = vehicle.Id,
-                Vehicle = vehicle,
-                ParkingSpotId = contractDTO.ParkingSpotId,
-                StartDate = contractDTO.StartDate,
-                MonthlyFee = contractDTO.MonthlyFee,
-                DiscountPercent = contractDTO.DiscountPercent,
-                Active = true
+                ParkingSpotId = parkingSpot.Id,
+                StartDate = dto.StartDate,
+                EndDate = dto.EndDate,
+                MonthlyFee = dto.MonthlyFee,
+                Vehicle = vehicle
             };
 
-            _context.Add(contract);
+            parkingSpot.IsOccupied = true;
+            parkingSpot.CurrentVehicle = vehicle;
 
-            if (_context.MonthlyContracts.Any(c => c.ParkingSpotId == contract.ParkingSpotId && c.ExitTime > DateTime.Now))
-                throw new InvalidOperationException("This spot is already occupied by another contract.");
-
-            if (contract.EndDate > contract.StartDate.AddYears(1))
-                throw new InvalidOperationException("The contract cannot be longer than 1 year");
-
+            _context.MonthlyContracts.Add(contract);
             _context.SaveChanges();
+
             return contract;
         }
 

@@ -17,6 +17,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using minimal_api.Api.Domain.Enums;
 using minimal_api.Api.Domain.Entities;
+using minimal_api.Application.Services;
 
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();    
 builder.Services.AddScoped<IAdministratorService, AdministratorService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
+builder.Services.AddScoped<IMonthlyContractService, MonthlyContractService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("mysql"),
     new MySqlServerVersion(new Version(8, 0, 43)))
@@ -234,6 +236,10 @@ app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleS
 app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService) =>
 {
     var contracts       = monthlyContractService.GetAllMonthlyContracts();
+
+    if (!contracts.Any())
+        return Results.NotFound(new { message = "No contract found" });
+
     var contractDTOs    = contracts.Select(c => new MonthlyContractOutDTO
     {
         Id              = c.Id,
@@ -259,8 +265,18 @@ app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthly
 app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService, MonthlyContractDTO contractDTO) =>
 {
     var createdContract = monthlyContractService.AddMonthlyContract(contractDTO);
+
+    var vehicle = new Vehicle
+    {
+        Id              = createdContract.Vehicle.Id,
+        Plate           = createdContract.Vehicle.Plate,
+        Name            = createdContract.Vehicle.Name,
+        Brand           = createdContract.Vehicle.Brand,
+        Color           = createdContract.Vehicle.Color,
+        Year            = createdContract.Vehicle.Year
+    };
     
-    var resultDTO       = new MonthlyContractOutDTO
+    var contract       = new MonthlyContractOutDTO
     {
         Id              = createdContract.Id,
         StartDate       = createdContract.StartDate,
@@ -268,42 +284,32 @@ app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthl
         MonthlyFee      = createdContract.MonthlyFee,
         DiscountPercent = createdContract.DiscountPercent,
         Active          = createdContract.Active,
-        Vehicle         = new VehicleOutDTO
-        {
-            Id          = createdContract.Vehicle.Id,
-            Plate       = createdContract.Vehicle.Plate,
-            Name        = createdContract.Vehicle.Name,
-            Brand       = createdContract.Vehicle.Brand,
-            Color       = createdContract.Vehicle.Color,
-            Year        = createdContract.Vehicle.Year
-        }
     };
 
-    return Results.Ok(resultDTO);
+    return Results.Ok(contract);
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
 .WithTags("Contracts");
 
 app.MapPut("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService monthlyContractService, UpdateMonthlyContractDTO updateMonthlyContractDTO, int id) =>
 {
-    var updatedContract = monthlyContractService.UpdateMonthlyContract(updateMonthlyContractDTO, id);
-
-    var resultUpdateDto = new MonthlyContractOutDTO
+    var updatedContract  = monthlyContractService.UpdateMonthlyContract(updateMonthlyContractDTO, id);
+    var resultUpdateDto  = new MonthlyContractOutDTO
     {
-        Id = updatedContract.Id,
-        StartDate = updatedContract.StartDate,
-        EndDate = updatedContract.EndDate,
-        MonthlyFee = updatedContract.MonthlyFee,
+        Id              = updatedContract.Id,
+        StartDate       = updatedContract.StartDate,
+        EndDate         = updatedContract.EndDate,
+        MonthlyFee      = updatedContract.MonthlyFee,
         DiscountPercent = updatedContract.DiscountPercent,
-        Active = updatedContract.Active,
-        Vehicle = new VehicleOutDTO
+        Active          = updatedContract.Active,
+        Vehicle         = new VehicleOutDTO
         {
-            Id = updatedContract.Vehicle.Id,
-            Plate = updatedContract.Vehicle.Plate,
-            Name = updatedContract.Vehicle.Name,
-            Brand = updatedContract.Vehicle.Brand,
-            Color = updatedContract.Vehicle.Color,
-            Year = updatedContract.Vehicle.Year
+            Id          = updatedContract.Vehicle.Id,
+            Plate       = updatedContract.Vehicle.Plate,
+            Name        = updatedContract.Vehicle.Name,
+            Brand       = updatedContract.Vehicle.Brand,
+            Color       = updatedContract.Vehicle.Color,
+            Year        = updatedContract.Vehicle.Year
         }
     };
 
