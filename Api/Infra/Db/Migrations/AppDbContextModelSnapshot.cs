@@ -57,7 +57,7 @@ namespace minimal_api.Migrations
 
                     b.HasIndex("VehicleId");
 
-                    b.ToTable("Contract");
+                    b.ToTable("Contract", (string)null);
 
                     b.HasDiscriminator().HasValue("Contract");
 
@@ -89,7 +89,7 @@ namespace minimal_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Administrators");
+                    b.ToTable("Administrators", (string)null);
 
                     b.HasData(
                         new
@@ -126,7 +126,7 @@ namespace minimal_api.Migrations
 
                     b.HasIndex("CurrentVehicleId");
 
-                    b.ToTable("ParkingSpots");
+                    b.ToTable("ParkingSpots", (string)null);
                 });
 
             modelBuilder.Entity("minimal_api.Domain.Entities.Vehicle", b =>
@@ -138,17 +138,14 @@ namespace minimal_api.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Brand")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
@@ -162,7 +159,7 @@ namespace minimal_api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vehicles");
+                    b.ToTable("Vehicles", (string)null);
                 });
 
             modelBuilder.Entity("minimal_api.Api.Domain.Entities.MonthlyContract", b =>

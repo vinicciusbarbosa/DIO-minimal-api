@@ -18,47 +18,60 @@ namespace minimal_api.Application.Services
         public MonthlyContractService(AppDbContext context)
         {
             _context = context;
+        }
 
-        }
-        public List<MonthlyContract> GetAllMonthlyContracts()
+         public List<MonthlyContract> GetAllMonthlyContracts()
         {
-            return _context.MonthlyContracts.ToList();
+            return _context.MonthlyContracts
+                        .Include(c => c.Vehicle)
+                        .ThenInclude(v => v.ParkingSpot)
+                        .ToList();
         }
-        public MonthlyContract AddMonthlyContract(MonthlyContractDTO dto)
+
+        public MonthlyContract AddMonthlyContract(MonthlyContractDTO monthlyContractDTO)
         {
-            var parkingSpot = _context.ParkingSpots.FirstOrDefault(s => s.Id == dto.ParkingSpotId);
-    
+            var parkingSpot = _context.ParkingSpots.FirstOrDefault(s => !s.IsOccupied && s.ContractType == ContractType.Monthly);
+
             if (parkingSpot == null)
                 throw new Exception("Parking spot not found.");
 
-            if (parkingSpot.IsOccupied)
-                throw new Exception($"Parking spot {parkingSpot.SpotNumber} is already occupied.");
+            var startDate   = monthlyContractDTO.StartDate == default
+                    ? DateTime.Now : monthlyContractDTO.StartDate;
+            var endDate     = monthlyContractDTO.EndDate == default
+                    ? DateTime.Now.AddMonths(1) : monthlyContractDTO.EndDate;
 
             var vehicle = new Vehicle
             {
-                Plate = dto.VehiclePlate,
-                Brand = dto.VehicleBrand,
-                Color = dto.VehicleColor,
-                Year = dto.VehicleYear
+                Plate           = monthlyContractDTO.VehiclePlate,
+                Brand           = monthlyContractDTO.VehicleBrand,
+                Color           = monthlyContractDTO.VehicleColor,
+                Year            = monthlyContractDTO.VehicleYear,
+                ParkingSpot     = parkingSpot,
+                ParkingSpotId   = parkingSpot.Id
             };
 
             var contract = new MonthlyContract
             {
-                ParkingSpotId = parkingSpot.Id,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                MonthlyFee = dto.MonthlyFee,
-                Vehicle = vehicle
+                ParkingSpotId   = parkingSpot.Id,
+                StartDate       = startDate,
+                EndDate         = endDate,
+                MonthlyFee      = monthlyContractDTO.MonthlyFee,
+                Vehicle         = vehicle
             };
-
-            parkingSpot.IsOccupied = true;
-            parkingSpot.CurrentVehicle = vehicle;
 
             _context.MonthlyContracts.Add(contract);
             _context.SaveChanges();
 
+            parkingSpot.CurrentVehicle      = vehicle;
+            parkingSpot.CurrentVehicleId = vehicle.Id;
+            parkingSpot.IsOccupied          = true;
+
+            _context.ParkingSpots.Update(parkingSpot);
+            _context.SaveChanges();
+
             return contract;
         }
+
 
         public MonthlyContract UpdateMonthlyContract(UpdateMonthlyContractDTO updatedContract, int id)
         {
@@ -68,8 +81,7 @@ namespace minimal_api.Application.Services
 
             if (contract == null)
                 throw new Exception("Contract not found.");
-
-           
+      
             if (updatedContract.EndDate.HasValue)
                 contract.EndDate = updatedContract.EndDate.Value;
 
@@ -86,19 +98,19 @@ namespace minimal_api.Application.Services
             if (updatedContract.Vehicle != null)
             {
                 if (updatedContract.Vehicle.Plate != null)
-                    contract.Vehicle.Plate = updatedContract.Vehicle.Plate;
+                    contract.Vehicle.Plate  = updatedContract.Vehicle.Plate;
 
                 if (updatedContract.Vehicle.Name != null)
-                    contract.Vehicle.Name = updatedContract.Vehicle.Name;
+                    contract.Vehicle.Name   = updatedContract.Vehicle.Name;
 
                 if (updatedContract.Vehicle.Brand != null)
-                    contract.Vehicle.Brand = updatedContract.Vehicle.Brand;
+                    contract.Vehicle.Brand  = updatedContract.Vehicle.Brand;
 
                 if (updatedContract.Vehicle.Color != null)
-                    contract.Vehicle.Color = updatedContract.Vehicle.Color;
+                    contract.Vehicle.Color  = updatedContract.Vehicle.Color;
 
                 if (updatedContract.Vehicle.Year.HasValue)
-                    contract.Vehicle.Year = updatedContract.Vehicle.Year.Value;
+                    contract.Vehicle.Year   = updatedContract.Vehicle.Year.Value;
             }
 
             _context.SaveChanges();

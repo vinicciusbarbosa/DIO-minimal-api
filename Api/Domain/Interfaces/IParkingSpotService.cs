@@ -9,7 +9,7 @@ namespace minimal_api.Domain.Interfaces
 {
     public interface IParkingSpotService
     {
-        List<ParkingSpot> ListAllAvaliableParkingSpots();
+        List<ParkingSpot> ListAllParkingSpots();
         ParkingSpot AddParkingSpot(ParkingSpotDTO parkingSpotDTO);
         ParkingSpot? UpdateParkingSpot(UpdateParkingSpotDTO updateParkingSpotDTO, int id);
         ParkingSpot? RemoveParkingSpot(int id);

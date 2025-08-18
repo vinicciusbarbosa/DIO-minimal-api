@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using minimal_api.Domain.DTO;
 using minimal_api.Domain.Entities;
@@ -18,15 +19,13 @@ namespace minimal_api.Application.Services
             _context = context;
         }
 
-        public List<ParkingSpot> ListAllAvaliableParkingSpots()
+        public List<ParkingSpot> ListAllParkingSpots()
         {
-           var avaliableSpots = _context.ParkingSpots.Where(p => !p.IsOccupied).ToList();
-
-            if (!avaliableSpots.Any())
-                throw new Exception("No parking spots available.");
-
-            return avaliableSpots;
+            return _context.ParkingSpots
+                        .Include(p => p.CurrentVehicle)
+                        .ToList();
         }
+
 
         public ParkingSpot AddParkingSpot(ParkingSpotDTO parkingSpotDTO)
         {
@@ -42,7 +41,6 @@ namespace minimal_api.Application.Services
 
             return parkingSpot;
         }
-
 
         public ParkingSpot? UpdateParkingSpot(UpdateParkingSpotDTO updateParkingSpotDTO, int id)
         {

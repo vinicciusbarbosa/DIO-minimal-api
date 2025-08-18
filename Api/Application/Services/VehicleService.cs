@@ -43,12 +43,12 @@ namespace minimal_api.Domain.Services
             var query = _context.Vehicles.AsQueryable();
             if (!string.IsNullOrEmpty(name))
             {
-                query = query.Where(v => EF.Functions.Like(v.Name.ToLower(), $"%{name.ToLower()}%"));
-
+                query = query.Where(v => EF.Functions.Like((v.Name ?? "").ToLower(), $"%{name.ToLower()}%"));
             }
+
             if (!string.IsNullOrEmpty(brand))
             {
-                query = query.Where(v => EF.Functions.Like(v.Brand.ToLower(), $"%{brand.ToLower()}%"));
+                query = query.Where(v => EF.Functions.Like((v.Brand ?? "").ToLower(), $"%{brand.ToLower()}%"));
             }
 
             int itemsPerPage = 10;

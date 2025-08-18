@@ -13,4 +13,4 @@ namespace minimal_api.Api.Domain.Entities
         public decimal MonthlyFee { get; set; }
         public decimal? DiscountPercent { get; set; }
     }
-}
+}   

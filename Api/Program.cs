@@ -43,6 +43,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddScoped<IAdministratorService, AdministratorService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IMonthlyContractService, MonthlyContractService>();
+builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("mysql"),
     new MySqlServerVersion(new Version(8, 0, 43)))
@@ -245,7 +246,7 @@ app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthly
         Id              = c.Id,
         StartDate       = c.StartDate,
         EndDate         = c.EndDate,
-        MonthlyFee      = c.MonthlyFee,
+        MonthlyFee      = c.MonthlyFee, 
         DiscountPercent = c.DiscountPercent,
         Active          = c.Active,
         Vehicle         = new VehicleOutDTO
@@ -266,24 +267,23 @@ app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthl
 {
     var createdContract = monthlyContractService.AddMonthlyContract(contractDTO);
 
-    var vehicle = new Vehicle
+    var contract = new MonthlyContractOutDTO
     {
-        Id              = createdContract.Vehicle.Id,
-        Plate           = createdContract.Vehicle.Plate,
-        Name            = createdContract.Vehicle.Name,
-        Brand           = createdContract.Vehicle.Brand,
-        Color           = createdContract.Vehicle.Color,
-        Year            = createdContract.Vehicle.Year
-    };
-    
-    var contract       = new MonthlyContractOutDTO
-    {
-        Id              = createdContract.Id,
-        StartDate       = createdContract.StartDate,
-        EndDate         = createdContract.EndDate,
-        MonthlyFee      = createdContract.MonthlyFee,
+        Id = createdContract.Id,
+        StartDate = createdContract.StartDate,
+        EndDate = createdContract.EndDate,
+        MonthlyFee = createdContract.MonthlyFee,
         DiscountPercent = createdContract.DiscountPercent,
-        Active          = createdContract.Active,
+        Active = createdContract.Active,
+        Vehicle = new VehicleOutDTO
+        {
+            Id = createdContract.Vehicle.Id,
+            Plate = createdContract.Vehicle.Plate,
+            Name = createdContract.Vehicle.Name,
+            Brand = createdContract.Vehicle.Brand,
+            Color = createdContract.Vehicle.Color,
+            Year = createdContract.Vehicle.Year
+        }
     };
 
     return Results.Ok(contract);
@@ -327,6 +327,39 @@ app.MapDelete("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService
 .WithTags("Contracts");
 
 
+#endregion
+
+#region ParkingSpots
+app.MapGet("/parking-spot", ([FromServices] IParkingSpotService parkingSpotService) =>
+{
+    var parkingSpots = parkingSpotService.ListAllParkingSpots()
+                          .Select(p => new ParkingSpotOutDTO
+                          {
+                              Id = p.Id,
+                              SpotNumber = p.SpotNumber,
+                              ContractType = p.ContractType,
+                              IsOccupied = p.IsOccupied,
+                              CurrentVehicle = p.CurrentVehicle == null ? null : new VehicleOutDTO
+                              {
+                                  Id = p.CurrentVehicle.Id,
+                                  Plate = p.CurrentVehicle.Plate,
+                                  Brand = p.CurrentVehicle.Brand,
+                                  Color = p.CurrentVehicle.Color,
+                                  Year = p.CurrentVehicle.Year
+                              }
+                          })
+                          .ToList();
+
+    return Results.Ok(parkingSpots);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("ParkingSpot");
+
+app.MapPost("/parking-spot", ([FromServices] IParkingSpotService parkingSpotService, ParkingSpotDTO parkingSpotDTO) =>
+{
+    var createdParkingSpot = parkingSpotService.AddParkingSpot(parkingSpotDTO);
+    return Results.Ok(createdParkingSpot);
+})
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("ParkingSpot");
 #endregion
 
 #region App

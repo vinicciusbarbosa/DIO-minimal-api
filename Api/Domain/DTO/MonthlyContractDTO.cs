@@ -1,8 +1,7 @@
 public record MonthlyContractDTO
 {
-    public int ParkingSpotId { get; init; }
     public DateTime StartDate { get; init; }
-    public DateTime EndDate { get; init; }
+    public DateTime EndDate { get; init; } 
     public decimal MonthlyFee { get; init; }
     public decimal? DiscountPercent { get; init; }
     public string VehiclePlate { get; init; } = default!;

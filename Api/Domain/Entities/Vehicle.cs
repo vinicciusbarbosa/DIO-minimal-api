@@ -18,15 +18,18 @@ public class Vehicle
     [Required]
     [StringLength(10)]
     public string Plate { get; set; } = default!;
+    public int? ParkingSpotId { get; set; }
+    [ForeignKey("ParkingSpotId")]
+    public ParkingSpot? ParkingSpot { get; set; }
 
     [StringLength(150)]
-    public string Name { get; set; } = default!;
+    public string? Name { get; set; } 
 
     [StringLength(100)]
-    public string Brand { get; set; } = default!;
+    public string? Brand { get; set; } 
 
     [StringLength(50)]
-    public string Color { get; set; } = default!;
+    public string? Color { get; set; } 
     
     public int Year { get; set; }
 }
