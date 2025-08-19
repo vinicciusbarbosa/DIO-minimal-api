@@ -3,7 +3,7 @@
 <h1 align="center">🚗 Minimal API de Estacionamento</h1>
 
 <p align="center">
-Esta aplicação é uma **Minimal API** construída em **.NET 9** com foco em gestão de estacionamentos. O projeto foi desenvolvido como parte do **Bootcamp GFT Start #7 <br> **.
+Esta aplicação é uma <strong>Minimal API</strong> construída em <strong>.NET 9</strong> com foco em gestão de estacionamentos. <br>
 Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progressão nos estudos praticados.
 </p>
 
