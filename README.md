@@ -3,7 +3,7 @@
 <h1 align="center">🚗 Minimal API de Estacionamento</h1>
 
 <p align="center">
-Esta aplicação é uma **Minimal API** construída em **.NET 9** com foco em gestão de estacionamentos. O projeto foi desenvolvido como parte do **Bootcamp GFT Start #7**.
+Esta aplicação é uma **Minimal API** construída em **.NET 9** com foco em gestão de estacionamentos. O projeto foi desenvolvido como parte do **Bootcamp GFT Start #7 <br> **.
 Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progressão nos estudos praticados.
 </p>
 
@@ -12,7 +12,7 @@ Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progr
 ![.NET 9](https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)
 
-**Banco de Dados**
+### Banco de Dados
 ![EF Core](https://img.shields.io/badge/EF_Core-512BD4?style=for-the-badge&logo=entityframework&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 
