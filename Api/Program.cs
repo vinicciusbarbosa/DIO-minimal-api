@@ -321,12 +321,13 @@ app.MapPut("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService mo
 app.MapDelete("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService monthlyContractService, int id) =>
 {
     var contract = monthlyContractService.RemoveMonthlyContract(id);
-    return Results.Ok(contract);
+    if (!contract)
+        return Results.NotFound(new {message = "Contract not found." });
+
+    return Results.Ok(new { message = $"Contract {id} deleted successfully " });
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
 .WithTags("Contracts");
-
-
 #endregion
 
 #region ParkingSpots

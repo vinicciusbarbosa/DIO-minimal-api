@@ -43,6 +43,7 @@ namespace minimal_api.Application.Services
             var vehicle = new Vehicle
             {
                 Plate           = monthlyContractDTO.VehiclePlate,
+                Name            = monthlyContractDTO.VehicleName,
                 Brand           = monthlyContractDTO.VehicleBrand,
                 Color           = monthlyContractDTO.VehicleColor,
                 Year            = monthlyContractDTO.VehicleYear,
@@ -118,16 +119,31 @@ namespace minimal_api.Application.Services
         }
 
 
-        public MonthlyContract RemoveMonthlyContract(int id)
+       public bool RemoveMonthlyContract(int id)
         {
             var contract = _context.MonthlyContracts.Find(id);
             if (contract == null)
-                throw new Exception("Contract not found.");
+                return false;
+
+            
+            var vehicle = _context.Vehicles.FirstOrDefault(v => v.Id == contract.VehicleId);
+            if (vehicle != null)
+            {
+                _context.Vehicles.Remove(vehicle);
+            }
+
+            var parkingSpot = _context.ParkingSpots.FirstOrDefault(p => p.CurrentVehicleId == contract.VehicleId);
+            if (parkingSpot != null)
+            {
+                parkingSpot.CurrentVehicleId = null;
+                parkingSpot.IsOccupied = false;
+                _context.ParkingSpots.Update(parkingSpot);
+            }
 
             _context.MonthlyContracts.Remove(contract);
-            _context.SaveChanges();
 
-            return contract;
+            _context.SaveChanges();
+            return true;
         }
     }
 }

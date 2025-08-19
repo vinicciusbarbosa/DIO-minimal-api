@@ -12,6 +12,6 @@ namespace minimal_api.Domain.Interfaces
         List<MonthlyContract> GetAllMonthlyContracts();
         MonthlyContract AddMonthlyContract(MonthlyContractDTO contractDTO);
         MonthlyContract UpdateMonthlyContract(UpdateMonthlyContractDTO updatedContract, int id);
-        MonthlyContract RemoveMonthlyContract(int id);
+        bool RemoveMonthlyContract(int id);
     }
 }
