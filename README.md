@@ -1,5 +1,3 @@
----
-
 <h1 align="center">🚗 Minimal API de Estacionamento</h1>
 
 <p align="center">
