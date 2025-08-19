@@ -7,6 +7,7 @@ public record MonthlyContractOutDTO
     public decimal? DiscountPercent { get; init; }
     public bool Active { get; init; }
     public VehicleOutDTO Vehicle { get; init; } = default!;
+    public int? ParkingSpotId { get; set; }
 }
 
 public record VehicleOutDTO

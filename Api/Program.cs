@@ -237,7 +237,6 @@ app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleS
 app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService) =>
 {
     var contracts       = monthlyContractService.GetAllMonthlyContracts();
-
     if (!contracts.Any())
         return Results.NotFound(new { message = "No contract found" });
 
@@ -246,18 +245,19 @@ app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthly
         Id              = c.Id,
         StartDate       = c.StartDate,
         EndDate         = c.EndDate,
-        MonthlyFee      = c.MonthlyFee, 
+        MonthlyFee      = c.MonthlyFee,
         DiscountPercent = c.DiscountPercent,
         Active          = c.Active,
+        ParkingSpotId   = c.ParkingSpotId,
         Vehicle         = new VehicleOutDTO
         {
-            Id          = c.Vehicle.Id,
-            Plate       = c.Vehicle.Plate,
-            Name        = c.Vehicle.Name,
-            Brand       = c.Vehicle.Brand,
-            Color       = c.Vehicle.Color,
-            Year        = c.Vehicle.Year
-        }
+            Id      = c.Vehicle.Id,
+            Plate   = c.Vehicle.Plate,
+            Name    = c.Vehicle.Name,
+            Brand   = c.Vehicle.Brand,
+            Color   = c.Vehicle.Color,
+            Year    = c.Vehicle.Year
+        },
     }).ToList();
     return Results.Ok(contractDTOs);
 })
@@ -267,22 +267,22 @@ app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthl
 {
     var createdContract = monthlyContractService.AddMonthlyContract(contractDTO);
 
-    var contract = new MonthlyContractOutDTO
+    var contract        = new MonthlyContractOutDTO
     {
-        Id = createdContract.Id,
-        StartDate = createdContract.StartDate,
-        EndDate = createdContract.EndDate,
-        MonthlyFee = createdContract.MonthlyFee,
+        Id              = createdContract.Id,
+        StartDate       = createdContract.StartDate,
+        EndDate         = createdContract.EndDate,
+        MonthlyFee      = createdContract.MonthlyFee,
         DiscountPercent = createdContract.DiscountPercent,
-        Active = createdContract.Active,
-        Vehicle = new VehicleOutDTO
+        Active          = createdContract.Active,
+        Vehicle         = new VehicleOutDTO
         {
-            Id = createdContract.Vehicle.Id,
-            Plate = createdContract.Vehicle.Plate,
-            Name = createdContract.Vehicle.Name,
-            Brand = createdContract.Vehicle.Brand,
-            Color = createdContract.Vehicle.Color,
-            Year = createdContract.Vehicle.Year
+            Id          = createdContract.Vehicle.Id,
+            Plate       = createdContract.Vehicle.Plate,
+            Name        = createdContract.Vehicle.Name,
+            Brand       = createdContract.Vehicle.Brand,
+            Color       = createdContract.Vehicle.Color,
+            Year        = createdContract.Vehicle.Year
         }
     };
 
@@ -344,12 +344,16 @@ app.MapGet("/parking-spot", ([FromServices] IParkingSpotService parkingSpotServi
                               {
                                   Id = p.CurrentVehicle.Id,
                                   Plate = p.CurrentVehicle.Plate,
+                                  Name  = p.CurrentVehicle.Name,
                                   Brand = p.CurrentVehicle.Brand,
                                   Color = p.CurrentVehicle.Color,
                                   Year = p.CurrentVehicle.Year
                               }
                           })
                           .ToList();
+
+    if (!parkingSpots.Any())
+        return Results.NotFound(new {message = "No parking spots found." });
 
     return Results.Ok(parkingSpots);
 })
