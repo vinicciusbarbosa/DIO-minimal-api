@@ -22,7 +22,7 @@ Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progr
 
 - Criar, listar e remover **contratos mensais** do estacionamento, com associação de veículos e vagas.
 - Gerenciar **veículos**, permitindo apenas **listagem** e visualização dos detalhes.
-- Gerenciar **vagas de estacionamento**, incluindo status de ocupação e veículo alocado.
+- Criar, remover ou listar **vagas de estacionamento**, incluindo status de ocupação e veículo alocado.
 - **Autenticação e autorização** via JWT, com papéis `Administrator` e `Editor`.
 - Segue o padrão **Minimal API** do .NET para simplicidade e performance.
 - As operações de exclusão garantem que veículos e vagas sejam atualizados corretamente.
@@ -40,7 +40,7 @@ Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progr
 
 ```bash
 # Clonar o repositório
-git clone https://github.com/seu-usuario/minimal-api.git
+git clone https://github.com/vinicciusbarbosa/DIO-minimal-api.git
 
 # Entrar no diretório
 cd minimal-api/Api
