@@ -15,13 +15,36 @@ namespace minimal_api.Application.Services
             _context = context;
         }
 
-         public List<MonthlyContract> GetAllMonthlyContracts()
+        public List<MonthlyContract> ListMonthlyContracts(
+            int page = 1,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            int? parkingSpotId = null,
+            string? vehiclePlate = null)
         {
-            return _context.MonthlyContracts
+            var query = _context.MonthlyContracts
                         .Include(c => c.Vehicle)
                         .ThenInclude(v => v.ParkingSpot)
-                        .ToList();
+                        .AsQueryable();
+
+            if (startDate.HasValue)
+                query = query.Where(c => c.StartDate.Date >= startDate.Value.Date);
+
+            if (endDate.HasValue)
+                query = query.Where(c => c.EndDate.HasValue && c.EndDate.Value.Date <= endDate.Value.Date);
+
+            if (parkingSpotId.HasValue)
+                query = query.Where(c => c.ParkingSpotId == parkingSpotId.Value);
+
+            if (!string.IsNullOrEmpty(vehiclePlate))
+                query = query.Where(c => c.Vehicle.Plate.Contains(vehiclePlate.ToUpper()));
+
+            int itemsPerPage = 10;
+            query = query.Skip((page - 1) * itemsPerPage).Take(itemsPerPage);
+
+            return query.ToList();
         }
+
 
         public MonthlyContract AddMonthlyContract(MonthlyContractDTO monthlyContractDTO)
         {

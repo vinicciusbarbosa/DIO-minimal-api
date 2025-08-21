@@ -235,13 +235,26 @@ app.MapGet("/vehicles/by-plate/{plate}", (string plate, IVehicleService vehicleS
 #endregion
 
 #region Contracts
-app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService) =>
+app.MapGet("/contracts/monthly", (
+    int? page,
+    DateTime? startDate,
+    DateTime? endDate,
+    int? parkingSpotId,
+    string? vehiclePlate,
+    IMonthlyContractService monthlyContractService) =>
 {
-    var contracts       = monthlyContractService.GetAllMonthlyContracts();
+    var contracts = monthlyContractService.ListMonthlyContracts(
+        page ?? 1,
+        startDate,
+        endDate,
+        parkingSpotId,
+        vehiclePlate
+    );
+
     if (!contracts.Any())
         return Results.NotFound(new { message = "No contract found" });
 
-    var contractDTOs    = contracts.Select(c => new MonthlyContractOutDTO
+    var contractDTOs = contracts.Select(c => new MonthlyContractOutDTO
     {
         Id              = c.Id,
         StartDate       = c.StartDate,
@@ -258,11 +271,13 @@ app.MapGet("/contracts/monthly", ([FromServices] IMonthlyContractService monthly
             Brand   = c.Vehicle.Brand,
             Color   = c.Vehicle.Color,
             Year    = c.Vehicle.Year
-        },
+        }
     }).ToList();
+
     return Results.Ok(contractDTOs);
 })
-.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" }).WithTags("Contracts");
+.RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
+.WithTags("Contracts");
 
 app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthlyContractService, MonthlyContractDTO contractDTO) =>
 {
