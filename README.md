@@ -1,7 +1,7 @@
 <h1>Minimal API de Estacionamento</h1>
 
 Esta aplicação é uma **Minimal API** construída em **.NET <span>9</span>** durante o bootcamp GFT Start #7. 
-O projeto serve como treinamento prático em desenvolvimento .NET, permitindo experimentar conceitos e práticas modernas de APIs. 
+O projeto serve como **treinamento** prático em desenvolvimento .NET, permitindo experimentar conceitos e práticas modernas de APIs. 
 A API ainda está em desenvolvimento, sendo constantemente refinada e testada para acompanhar meu aprendizado.
 
 ### Linguagem e Framework
