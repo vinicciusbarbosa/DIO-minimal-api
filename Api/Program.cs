@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using minimal_api.Domain.DTO;
@@ -16,7 +14,6 @@ using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using minimal_api.Api.Domain.Enums;
-using minimal_api.Api.Domain.Entities;
 using minimal_api.Application.Services;
 
 #region Builder
@@ -290,7 +287,7 @@ app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthl
         }
     };
 
-    return Results.Ok(contract);
+    return Results.Created($"/contracts/monthly/{createdContract.Id}", contract);
 })
 .RequireAuthorization(new AuthorizeAttribute { Roles = "Administrator,Editor" })
 .WithTags("Contracts");
