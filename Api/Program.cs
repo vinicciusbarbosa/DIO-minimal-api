@@ -22,6 +22,7 @@ using minimal_api.Application.Services;
 #region Builder
 var builder = WebApplication.CreateBuilder(args);
 var key = builder.Configuration["Jwt:Key"];
+
 if (string.IsNullOrEmpty(key)) throw new Exception("JWT Key is not configured.");
 builder.Services.AddAuthentication(options =>
 {
@@ -39,15 +40,18 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 });
+
 builder.Services.AddAuthorization();    
 builder.Services.AddScoped<IAdministratorService, AdministratorService>();
 builder.Services.AddScoped<IVehicleService, VehicleService>();
 builder.Services.AddScoped<IMonthlyContractService, MonthlyContractService>();
 builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("mysql"),
     new MySqlServerVersion(new Version(8, 0, 43)))
 );
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -107,9 +111,9 @@ app.MapGet("/administrators", ([FromQuery] int? page, IAdministratorService admi
     var admins = administratorService.ListAllAdministrators(page)
      .Select(a => new AdministratorOutDTO
      {
-         Id         = a.Id,
-         Email      = a.Email,
-         Profile    = a.Profile
+         Id      = a.Id,
+         Email   = a.Email,
+         Profile = a.Profile
      })
      .ToList();
 
@@ -294,6 +298,10 @@ app.MapPost("/contracts/monthly", ([FromServices] IMonthlyContractService monthl
 app.MapPut("/contracts/monthly/{id}", ([FromServices] IMonthlyContractService monthlyContractService, UpdateMonthlyContractDTO updateMonthlyContractDTO, int id) =>
 {
     var updatedContract  = monthlyContractService.UpdateMonthlyContract(updateMonthlyContractDTO, id);
+
+    if (updatedContract == null)
+        return Results.NotFound(new { message = "No monthly contract found to update." });
+
     var resultUpdateDto  = new MonthlyContractOutDTO
     {
         Id              = updatedContract.Id,

@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using minimal_api.Domain.DTO;
 using minimal_api.Domain.Entities;
 using minimal_api.Domain.Interfaces;
@@ -33,7 +28,7 @@ namespace minimal_api.Domain.Services
             int currentPage = page ?? 1;
 
             query = query.Skip((currentPage - 1) * itemsPerPage)
-                        .Take(itemsPerPage);
+                         .Take(itemsPerPage);
 
             return query.ToList();
         }

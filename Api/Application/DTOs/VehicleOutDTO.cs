@@ -1,6 +1,3 @@
-using System;
-using minimal_api.Api.Domain.Enums;
-
 namespace minimal_api.Domain.DTO
 {
     public record VehicleOutDTO

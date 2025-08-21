@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace minimal_api.Api.Domain.Entities
 {
     public class MonthlyContract : Contract
