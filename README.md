@@ -1,9 +1,8 @@
-<h1 align="center">🚗 Minimal API de Estacionamento</h1>
+<h1>Minimal API de Estacionamento</h1>
 
-<p align="center">
-Esta aplicação é uma <strong>Minimal API</strong> construída em <strong>.NET 9</strong> com foco em gestão de estacionamentos. <br>
-Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progressão nos estudos praticados.
-</p>
+Esta aplicação é uma **Minimal API** construída em **.NET <span>9</span>** durante o bootcamp GFT Start #7. 
+O projeto serve como treinamento prático em desenvolvimento .NET, permitindo experimentar conceitos e práticas modernas de APIs. 
+A API ainda está em desenvolvimento, sendo constantemente refinada e testada para acompanhar meu aprendizado.
 
 ### Linguagem e Framework
 ![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)
@@ -29,11 +28,13 @@ Esta API ainda está sendo desenvolvida, refinada e testada conforme minha progr
 
 ## Próximos Passos
 
-- Implementar **Rotative Contract** (não incluído por enquanto).
+- Implementar **Rotative Contract** (estacionamento rotativo, não incluído por enquanto).
 - Adicionar **testes unitários e de integração**.
-- Melhorar validações, mensagens de erro e tratamento de exceções.
 - Melhorar endpoints de consultas para permitir diversos filtros.
 - Documentar a API com **Swagger / OpenAPI**.
+
+### Endpoints
+<img width="289" height="820" alt="image" src="https://github.com/user-attachments/assets/ad466eba-8783-48c9-8383-09fcb69ecb2e" />
 
 ## Como Rodar
 
@@ -47,8 +48,8 @@ cd minimal-api/Api
 # Rodar a aplicação
 dotnet watch run
 ```
-Acesse os endpoints via **Postman**, **Insomnia** ou curl.
 ---
 
 Desenvolvido por: **Vinícius Barbosa**  \
-Bootcamp: **GFT Start #7 .NET** 
+Bootcamp: **GFT Start #7 .NET**                          
+<img width="146" height="120" alt="image" src="https://github.com/user-attachments/assets/1683095c-1f38-4097-8e70-80a679c6ef6f" hspace="20" />
